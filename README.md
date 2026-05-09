@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // 1. Fixed deadline (global event / launch)
+  
   new CountdownTimer('#timer-full', '2026-06-01T12:00:00', {
     onComplete: () => {
       const el = document.getElementById('timer-full');
@@ -10,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // 2. 15-minute session timer (resets on refresh)
+  
   new CountdownTimer('#timer-compact', { minutes: 15 }, {
     onComplete: () => {
       const el = document.getElementById('timer-compact');
