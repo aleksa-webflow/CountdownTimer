@@ -66,25 +66,35 @@ This example demonstrates how to use the `CountdownTimer` class with three commo
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Fixed deadline (global event / launch)
   new CountdownTimer('#timer-full', '2026-06-01T12:00:00', {
     onComplete: () => {
       const el = document.getElementById('timer-full');
       if (el) el.textContent = '🚀 Launched!';
     }
   });
+});
+</script>
 
-  // 2. 15-minute session timer (resets on refresh)
+```
+### 15-minute session timer (resets on refresh)
+```js
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
   new CountdownTimer('#timer-compact', { minutes: 15 }, {
     onComplete: () => {
       const el = document.getElementById('timer-compact');
       if (el) el.textContent = 'Expired';
     }
   });
-
-  // 3. 1h 30min timer (resets on refresh)
+});
+</script>
+```
+### 1h 30min timer (resets on refresh)
+```js
+<script>
+document.addEventListener('DOMContentLoaded', () => {
   new CountdownTimer('#timer-medium', { hours: 1, minutes: 30 });
-
 });
 </script>
 ```
