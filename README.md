@@ -1,31 +1,16 @@
-<!-- Javascript -->
-document.addEventListener('DOMContentLoaded', () => {
+# ⏱️ CountdownTimer – Example Usage
 
-  // 1. Fixed deadline (global event / launch)
-  
-  new CountdownTimer('#timer-full', '2026-06-01T12:00:00', {
-    onComplete: () => {
-      const el = document.getElementById('timer-full');
-      if (el) el.textContent = '🚀 Launched!';
-    }
-  });
+This example demonstrates how to use the `CountdownTimer` class with three common scenarios:
 
-  // 2. 15-minute session timer (resets on refresh)
-  
-  new CountdownTimer('#timer-compact', { minutes: 15 }, {
-    onComplete: () => {
-      const el = document.getElementById('timer-compact');
-      if (el) el.textContent = 'Expired';
-    }
-  });
+1. Fixed deadline (event launch)  
+2. Session-based countdown (resets on refresh)  
+3. Custom duration countdown  
 
-  // 3. 1h 30min timer (resets on refresh)
-  new CountdownTimer('#timer-medium', { hours: 1, minutes: 30 });
+---
 
-});
+## 🧱 HTML Structure
 
-
-  
+```html
 <div class="wrapper">
 
   <!-- Timer 1: Full (days + time) -->
@@ -72,5 +57,34 @@ document.addEventListener('DOMContentLoaded', () => {
   </div>
 
 </div>
+```
 
-  
+## 🚀 Usage (Quick Reference)
+
+### Fixed deadline
+```js
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  // 1. Fixed deadline (global event / launch)
+  new CountdownTimer('#timer-full', '2026-06-01T12:00:00', {
+    onComplete: () => {
+      const el = document.getElementById('timer-full');
+      if (el) el.textContent = '🚀 Launched!';
+    }
+  });
+
+  // 2. 15-minute session timer (resets on refresh)
+  new CountdownTimer('#timer-compact', { minutes: 15 }, {
+    onComplete: () => {
+      const el = document.getElementById('timer-compact');
+      if (el) el.textContent = 'Expired';
+    }
+  });
+
+  // 3. 1h 30min timer (resets on refresh)
+  new CountdownTimer('#timer-medium', { hours: 1, minutes: 30 });
+
+});
+</script>
+```
