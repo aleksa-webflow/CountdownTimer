@@ -1,62 +1,113 @@
 class CountdownTimer {
-  constructor(selector, deadline) {
-    this.containers = Array.from(document.querySelectorAll(selector));
-    if (this.containers.length === 0) {
-      console.error(`CountdownTimer: No elements found for selector "${selector}"`);
-      return;
+  static instances = new Set();
+  static ticker = null;
+
+  constructor(selector, config, options = {}) {
+    this.containers = [...document.querySelectorAll(selector)];
+    if (!this.containers.length) return;
+
+    this.onComplete = options.onComplete;
+    this.lastValues = null;
+
+    // Resolve deadline
+    if (typeof config === 'string') {
+      this.deadline = new Date(config).getTime();
+    } else {
+      const now = Date.now();
+      const duration =
+        (config.days || 0) * 86400000 +
+        (config.hours || 0) * 3600000 +
+        (config.minutes || 0) * 60000 +
+        (config.seconds || 0) * 1000;
+
+      this.deadline = now + duration;
     }
 
-    this.deadline = new Date(deadline);
-    if (isNaN(this.deadline)) {
-      console.error(`CountdownTimer: Invalid deadline "${deadline}"`);
-      return;
+    if (isNaN(this.deadline)) return;
+
+    // Cache DOM references once
+    this.elements = this.containers.map(container => ({
+      days: container.querySelector('[data-timer-days]'),
+      hours: container.querySelector('[data-timer-hours]'),
+      minutes: container.querySelector('[data-timer-minutes]'),
+      seconds: container.querySelector('[data-timer-seconds]')
+    }));
+
+    CountdownTimer.instances.add(this);
+    CountdownTimer.startTicker();
+  }
+
+  static startTicker() {
+    if (this.ticker) return;
+
+    const tick = () => {
+      const now = Date.now();
+
+      for (const instance of this.instances) {
+        instance.update(now);
+      }
+
+      const delay = 1000 - (now % 1000);
+      this.ticker = setTimeout(tick, delay);
+    };
+
+    tick();
+  }
+
+  static stopTickerIfIdle() {
+    if (this.instances.size === 0 && this.ticker) {
+      clearTimeout(this.ticker);
+      this.ticker = null;
     }
-
-    this.start();
   }
 
-  start() {
-    this.update(); // immediate first update
-    this.interval = setInterval(() => this.update(), 1000);
-  }
-
-  update() {
-    const now = new Date();
+  update(now) {
     const diff = this.deadline - now;
 
-    let days = 0, hours = 0, minutes = 0, seconds = 0;
-
-    if (diff > 0) {
-      days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      minutes = Math.floor((diff / (1000 * 60)) % 60);
-      seconds = Math.floor((diff / 1000) % 60);
-    } else {
-      this.stop();
+    if (diff <= 0) {
+      this.render(0, 0, 0, 0);
+      this.destroy();
+      this.onComplete?.();
+      return;
     }
 
-    this.setValues(days, hours, minutes, seconds);
+    const values = [
+      Math.floor(diff / 86400000),
+      Math.floor((diff / 3600000) % 24),
+      Math.floor((diff / 60000) % 60),
+      Math.floor((diff / 1000) % 60)
+    ];
+
+    // Prevent unnecessary DOM writes
+    if (
+      this.lastValues &&
+      values.every((v, i) => v === this.lastValues[i])
+    ) return;
+
+    this.lastValues = values;
+    this.render(...values);
   }
 
-  setValues(days, hours, minutes, seconds) {
-    for (const container of this.containers) {
-      const daysEl = container.querySelector('[timer="days"]');
-      const hoursEl = container.querySelector('[timer="hours"]');
-      const minutesEl = container.querySelector('[timer="minutes"]');
-      const secondsEl = container.querySelector('[timer="seconds"]');
+  render(d, h, m, s) {
+    const dd = this.pad(d);
+    const hh = this.pad(h);
+    const mm = this.pad(m);
+    const ss = this.pad(s);
 
-      if (daysEl) daysEl.textContent = this.pad(days);
-      if (hoursEl) hoursEl.textContent = this.pad(hours);
-      if (minutesEl) minutesEl.textContent = this.pad(minutes);
-      if (secondsEl) secondsEl.textContent = this.pad(seconds);
+    for (const el of this.elements) {
+      if (el.days) el.days.textContent = dd;
+      if (el.hours) el.hours.textContent = hh;
+      if (el.minutes) el.minutes.textContent = mm;
+      if (el.seconds) el.seconds.textContent = ss;
     }
   }
 
-  pad(value) {
-    return value.toString().padStart(2, '0');
+  pad(v) {
+    return v < 10 ? '0' + v : '' + v;
   }
 
-  stop() {
-    clearInterval(this.interval);
+  destroy() {
+    CountdownTimer.instances.delete(this);
+    CountdownTimer.stopTickerIfIdle();
   }
 }
