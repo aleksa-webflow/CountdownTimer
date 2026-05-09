@@ -8,6 +8,12 @@ This example demonstrates how to use the `CountdownTimer` class with three commo
 
 ---
 
+## 📦 CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/gh/aleksa-webflow/CountdownTimer@v1.0/CountdownTimer.js"></script>
+```
+
 ## 🧱 HTML Structure
 
 ```html
